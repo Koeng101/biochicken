@@ -1,6 +1,10 @@
 
 (require-extension srfi-1)
 (require-extension srfi-69)
+(require-extension statistics)
+(require-extension alist-lib)
+(require-extension s)
+
 #| 
 Parameter setup
 |#
@@ -56,3 +60,11 @@ buffer
 (short_average (cdr short_list) cdn_average (alist-update (caar short_list) (/ (string->number (cadar short_list)) cdn_average) buffer))))
 
 (define codon_table (alist->hash-table (map (lambda (x) (cons (car x) (short_average (cdr x) (fctr (cdr x) 0) '()))) codon_list)))
+
+
+
+(define (choose_codon table codon) (let((samples (hash-table-ref table (string codon))))
+				    (random-weighted-sample 1 (alist-keys samples) (alist-values samples))))
+
+(define (optimize_protein table amino_acids) (s-join "" (join (map (lambda (x) (choose_codon table x)) (string->list 
+amino_acids)))))
